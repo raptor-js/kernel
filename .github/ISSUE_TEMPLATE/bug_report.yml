@@ -1,5 +1,5 @@
 name: Bug Report
-description: Report a bug or unexpected behavior in Raptor Framework
+description: Report a bug or unexpected behavior in Raptor Kernel
 title: "[Bug]: "
 labels: ["bug", "triage"]
 body:
@@ -24,8 +24,8 @@ body:
   - type: input
     id: version
     attributes:
-      label: Framework Version
-      description: Which version of Raptor Framework are you using?
+      label: Kernel Version
+      description: Which version of Raptor Kernel are you using?
       placeholder: "e.g., 0.14.0"
     validations:
       required: true
@@ -54,7 +54,7 @@ body:
       label: Minimal Reproduction
       description: Provide the smallest amount of code that reproduces the issue
       placeholder: |
-        import { Kernel } from "@raptor/framework";
+        import { Kernel } from "@raptor/kernel";
 
         const app = new Kernel();
 

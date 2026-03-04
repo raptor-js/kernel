@@ -49,11 +49,16 @@ export default class Kernel {
       ...config,
     };
 
-    this.serverManager = new DefaultServerManager();
+    this.serverManager = this.config.server?.manager!;
+    this.responseManager = this.config.response?.manager!;
 
-    this.responseManager = new DefaultResponseManager(
-      this.config.strictContentNegotiation,
+    const responseProcessors = Object.entries(
+      this.config.response?.processors || [],
     );
+
+    for (const [key, processor] of responseProcessors) {
+      this.responseManager.register(key, processor);
+    }
   }
 
   /**
@@ -99,6 +104,14 @@ export default class Kernel {
   public initialiseDefaultConfig(): Config {
     return {
       strictContentNegotiation: false,
+      server: {
+        manager: new DefaultServerManager(),
+      },
+      response: {
+        manager: new DefaultResponseManager(
+          false,
+        ),
+      },
     };
   }
 
@@ -223,36 +236,44 @@ export default class Kernel {
    */
   private async executeMiddleware(
     context: Context,
-    index: number,
-  ): Promise<Response | void> {
-    if (index >= this.middleware.length) return;
+    startIndex: number = 0,
+  ): Promise<void> {
+    let index = startIndex;
 
-    const middleware = this.middleware[index];
+    while (index < this.middleware.length) {
+      const middleware = this.middleware[index];
 
-    if (!middleware) return;
+      let nextCalled = false;
 
-    let called = false;
+      const next = () => {
+        if (nextCalled) {
+          return;
+        }
 
-    const next = async () => {
-      if (called) return;
+        nextCalled = true;
 
-      called = true;
+        index++;
+      };
 
-      index++;
+      try {
+        const body = await middleware(context, next);
 
-      await this.executeMiddleware(context, index);
-    };
+        if (nextCalled) {
+          continue;
+        }
 
-    try {
-      const body = await middleware(context, next);
+        if (body) {
+          await this.processMiddlewareResponse(body, context);
+        }
 
-      if (called || !body) return;
+        break;
+      } catch (error) {
+        context.error = error as Error | HttpError;
 
-      await this.processMiddlewareResponse(body, context);
-    } catch (error) {
-      context.error = error as Error | HttpError;
+        await this.processUncaughtError(context);
 
-      await this.processUncaughtError(context);
+        break;
+      }
     }
   }
 

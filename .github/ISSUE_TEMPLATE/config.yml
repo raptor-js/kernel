@@ -1,8 +1,8 @@
 blank_issues_enabled: false
 contact_links:
   - name: JSR Package Page
-    url: https://jsr.io/@raptor/framework
+    url: https://jsr.io/@raptor/kernel
     about: View the package on JSR
   - name: Security Issue
-    url: https://github.com/raptor-http/framework/security/advisories/new
+    url: https://github.com/raptor-http/kernel/security/advisories/new
     about: Report a security vulnerability privately

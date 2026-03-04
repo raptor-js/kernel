@@ -311,6 +311,23 @@ Deno.test("test kernel uses default response manager", async () => {
   );
 });
 
+Deno.test("test kernel uses custom response manager via config", async () => {
+  class CustomResponseManager extends DefaultResponseManager {}
+
+  const app = new Kernel({
+    response: {
+      manager: new CustomResponseManager(),
+    },
+  });
+
+  app.add(() => "Test");
+
+  const response = await app.respond(new Request(APP_URL));
+
+  assertEquals(await response.text(), "Test");
+  assertEquals(app.getResponseManager() instanceof CustomResponseManager, true);
+});
+
 Deno.test("test kernel uses custom response manager", async () => {
   const app = new Kernel();
 

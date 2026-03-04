@@ -1,6 +1,6 @@
 {
   "name": "@raptor/kernel",
-  "version": "0.19.0",
+  "version": "0.20.0",
   "exports": "./mod.ts",
   "compilerOptions": {
     "lib": ["deno.ns", "deno.window"]
@@ -17,6 +17,11 @@
     "test": "APP_URL=http://localhost:8000 deno test --coverage=coverage-report --allow-all --parallel",
     "test-watch": "APP_URL=http://localhost:8000 deno test --allow-env --watch",
     "test-coverage": "deno coverage coverage-report"
+  },
+  "lint": {
+    "exclude": [
+      "benchmark.ts"
+    ]
   },
   "fmt": {
     "exclude": [

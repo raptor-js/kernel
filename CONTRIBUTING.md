@@ -11,8 +11,8 @@ sharing the project with others.
 ### Report Issues
 
 Found a bug or have a suggestion?
-[Create an issue](https://github.com/raptor-js/framework/issues/new/choose)
-using one of our templates:
+[Create an issue](https://github.com/raptor-js/kernel/issues/new/choose) using
+one of our templates:
 
 - **Bug Report** - Something's not working as expected
 - **Feature Request** - Ideas for new features or improvements
@@ -34,9 +34,9 @@ We love pull requests! Here's how to contribute code:
 
 ```sh
 # Fork and clone the repository.
-git clone https://github.com/YOUR_USERNAME/raptor-framework.git
+git clone https://github.com/YOUR_USERNAME/raptor-kernel.git
 
-cd raptor-framework
+cd raptor-kernel
 
 # Run tests.
 deno task test
@@ -83,7 +83,7 @@ Keep commit messages clear and descriptive:
 ### Star the Project
 
 The simplest way to show support! A star on
-[GitHub](https://github.com/raptor-js/framework) helps others discover Raptor.
+[GitHub](https://github.com/raptor-js/kernel) helps others discover Raptor.
 
 ### Use the Project
 
@@ -91,19 +91,19 @@ The best contribution is using Raptor in your projects:
 
 ```sh
 # Deno
-deno add @raptor/framework
+deno add @raptor/kernel
 
 # npm
-npx jsr add @raptor/framework
+npx jsr add @raptor/kernel
 
 # Yarn
-yarn dlx jsr add @raptor/framework
+yarn dlx jsr add @raptor/kernel
 
 # pnpm
-pnpm dlx jsr add @raptor/framework
+pnpm dlx jsr add @raptor/kernel
 
 # Bun
-bunx jsr add @raptor/framework
+bunx jsr add @raptor/kernel
 ```
 
 - Build something awesome with it
@@ -167,6 +167,6 @@ deno check mod.ts
 ## Questions?
 
 - Check out the [documentation](https://raptorjs.com)
-- Browse [existing issues](https://github.com/raptor-js/framework/issues)
+- Browse [existing issues](https://github.com/raptor-js/kernel/issues)
 - Create a
-  [new discussion](https://github.com/raptor-js/framework/issues/new?template=question.yml)
+  [new discussion](https://github.com/raptor-js/kernel/issues/new?template=question.yml)
