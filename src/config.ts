@@ -1,3 +1,4 @@
+import type { Middleware } from "./types/middleware.ts";
 import type { ServerManager } from "./interfaces/server-manager.ts";
 import type { ResponseManager } from "./interfaces/response-manager.ts";
 import type { ResponseProcessor } from "./interfaces/response-processor.ts";
@@ -29,6 +30,13 @@ export interface Config {
    * @default false
    */
   strictContentNegotiation?: boolean;
+
+  /**
+   * Middleware stack, providing a way to add middleware to the kernel.
+   *
+   * @default []
+   */
+  middleware?: Middleware[];
 
   /**
    * Server configuration, providing a way to override the kernel's server management.

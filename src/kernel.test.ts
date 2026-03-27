@@ -40,6 +40,18 @@ Deno.test("test kernel handles adding middleware", async () => {
   assertEquals(await response.text(), "Test Successful");
 });
 
+Deno.test("test kernel handles adding middleware with config", async () => {
+  const app = new Kernel({
+    middleware: [
+      () => "Test Successful",
+    ],
+  });
+
+  const response = await app.respond(new Request(APP_URL));
+
+  assertEquals(await response.text(), "Test Successful");
+});
+
 Deno.test("test kernel handles alias method for adding middleware", async () => {
   const app = new Kernel();
 

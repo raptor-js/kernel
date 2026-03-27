@@ -1,9 +1,12 @@
 {
   "name": "@raptor/kernel",
-  "version": "0.21.0",
+  "version": "0.22.0",
   "exports": "./mod.ts",
   "compilerOptions": {
-    "lib": ["deno.ns", "deno.window"]
+    "lib": [
+      "deno.ns",
+      "deno.window"
+    ]
   },
   "publish": {
     "exclude": [

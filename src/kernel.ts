@@ -42,6 +42,8 @@ export default class Kernel {
    * Initialise the kernel.
    *
    * @constructor
+   *
+   * @param config The kernel configuration options.
    */
   constructor(config?: Config) {
     this.config = {
@@ -52,17 +54,12 @@ export default class Kernel {
     this.serverManager = this.config.server?.manager!;
     this.responseManager = this.config.response?.manager!;
 
-    const responseProcessors = Object.entries(
-      this.config.response?.processors || [],
-    );
-
-    for (const [key, processor] of responseProcessors) {
-      this.responseManager.register(key, processor);
-    }
+    this.registerConfigMiddleware(this.config);
+    this.registerConfigResponseProcessors(this.config);
   }
 
   /**
-   * Add a new module to the container.
+   * Add new middleware to the container.
    *
    * @param middleware An HTTP middleware instance.
    *
@@ -106,6 +103,7 @@ export default class Kernel {
       port: 80,
       hostname: "localhost",
       strictContentNegotiation: false,
+      middleware: [],
       server: {
         manager: new DefaultServerManager(),
       },
@@ -216,6 +214,36 @@ export default class Kernel {
     this.customErrorHandler = handler;
 
     return this;
+  }
+
+  /**
+   * Register middleware defined in config.
+   *
+   * @param config The kernel configuration options.
+   *
+   * @returns void
+   */
+  private registerConfigMiddleware(config: Config) {
+    for (const middleware of config.middleware ?? []) {
+      this.add(middleware);
+    }
+  }
+
+  /**
+   * Register response processors defined in config.
+   *
+   * @param config The kernel configuration options.
+   *
+   * @returns void
+   */
+  private registerConfigResponseProcessors(config: Config) {
+    const responseProcessors = Object.entries(
+      config.response?.processors || [],
+    );
+
+    for (const [key, processor] of responseProcessors) {
+      this.responseManager.register(key, processor);
+    }
   }
 
   /**
