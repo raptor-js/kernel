@@ -36,7 +36,7 @@ export default class Kernel {
   /**
    * An optional custom error handler function.
    */
-  private customErrorHandler?: ErrorHandler;
+  private errorHandler?: ErrorHandler | null;
 
   /**
    * Initialise the kernel.
@@ -104,6 +104,7 @@ export default class Kernel {
       hostname: "localhost",
       strictContentNegotiation: false,
       middleware: [],
+      errorHandler: null,
       server: {
         manager: new DefaultServerManager(),
       },
@@ -211,7 +212,7 @@ export default class Kernel {
    * @returns The kernel instance.
    */
   public catch(handler: ErrorHandler): this {
-    this.customErrorHandler = handler;
+    this.errorHandler = handler;
 
     return this;
   }
@@ -269,16 +270,22 @@ export default class Kernel {
     context: Context,
     index: number,
   ): Promise<Response | void> {
-    if (index >= this.middleware.length) return;
+    if (index >= this.middleware.length) {
+      return;
+    }
 
     const middleware = this.middleware[index];
 
-    if (!middleware) return;
+    if (!middleware) {
+      return;
+    }
 
     let called = false;
 
     const next = async () => {
-      if (called) return;
+      if (called) {
+        return;
+      }
 
       called = true;
 
@@ -290,10 +297,13 @@ export default class Kernel {
     try {
       const body = await middleware(context, next);
 
-      if (called || !body) return;
+      if (called || !body) {
+        return;
+      }
 
       if (body instanceof Response) {
         context.response = body;
+
         return;
       }
 
@@ -333,12 +343,13 @@ export default class Kernel {
   private async processUncaughtError(
     context: Context,
   ): Promise<void> {
-    if (!this.customErrorHandler) {
+    if (!this.errorHandler) {
       return this.internalErrorHandler(context);
     }
 
     try {
-      const errorBody = await this.customErrorHandler(context);
+      const errorBody = await this.errorHandler(context);
+
       await this.processMiddlewareResponse(errorBody, context);
     } catch (_error) {
       // Fall back to internal handler if custom handler fails.

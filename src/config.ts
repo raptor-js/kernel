@@ -1,4 +1,5 @@
 import type { Middleware } from "./types/middleware.ts";
+import type { ErrorHandler } from "./types/error-handler.ts";
 import type { ServerManager } from "./interfaces/server-manager.ts";
 import type { ResponseManager } from "./interfaces/response-manager.ts";
 import type { ResponseProcessor } from "./interfaces/response-processor.ts";
@@ -37,6 +38,13 @@ export interface Config {
    * @default []
    */
   middleware?: Middleware[];
+
+  /**
+   * The custom error handler for catching and responding to system errors.
+   *
+   * @default undefined
+   */
+  errorHandler?: ErrorHandler | null;
 
   /**
    * Server configuration, providing a way to override the kernel's server management.
