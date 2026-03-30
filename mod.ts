@@ -38,10 +38,6 @@ import ResponseObjectResponseProcessor from "./src/response/processors/response-
 
 // Export all available interfaces/types.
 export type { Config } from "./src/config.ts";
-export { HttpMethod } from "./src/types/http-method.ts";
-export type { Middleware } from "./src/types/middleware.ts";
-export type { HttpError } from "./src/interfaces/http-error.ts";
-export type { ErrorHandler } from "./src/types/error-handler.ts";
 export type { ResponseManager } from "./src/interfaces/response-manager.ts";
 export type { ResponseProcessor } from "./src/interfaces/response-processor.ts";
 
