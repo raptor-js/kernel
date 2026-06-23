@@ -36,7 +36,10 @@ export default class NodeServer implements ServerAdapter {
       try {
         const request = this.toWebRequest(nodeRequest as NodeIncomingMessage);
         const response = await handler(request);
-        await this.fromWebResponse(response, nodeResponse as NodeServerResponse);
+        await this.fromWebResponse(
+          response,
+          nodeResponse as NodeServerResponse,
+        );
       } catch {
         (nodeResponse as NodeServerResponse).statusCode = 500;
         (nodeResponse as NodeServerResponse).end();
