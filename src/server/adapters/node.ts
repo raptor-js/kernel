@@ -33,11 +33,14 @@ export default class NodeServer implements ServerAdapter {
     const { createServer } = await import("node:http");
 
     const server = createServer(async (nodeRequest, nodeResponse) => {
-      const request = this.toWebRequest(nodeRequest as NodeIncomingMessage);
-
-      const response = await handler(request);
-
-      await this.fromWebResponse(response, nodeResponse as NodeServerResponse);
+      try {
+        const request = this.toWebRequest(nodeRequest as NodeIncomingMessage);
+        const response = await handler(request);
+        await this.fromWebResponse(response, nodeResponse as NodeServerResponse);
+      } catch {
+        (nodeResponse as NodeServerResponse).statusCode = 500;
+        (nodeResponse as NodeServerResponse).end();
+      }
     });
 
     server.listen(
@@ -63,7 +66,8 @@ export default class NodeServer implements ServerAdapter {
       body: nodeRequest.method !== "GET" && nodeRequest.method !== "HEAD"
         ? (nodeRequest as unknown as ReadableStream<Uint8Array>)
         : undefined,
-    });
+      duplex: "half",
+    } as RequestInit);
   }
 
   /**
