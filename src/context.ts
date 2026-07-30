@@ -1,4 +1,8 @@
-import type { Context as ContextInterface, HttpError } from "@raptor/types";
+import type {
+  ConnInfo,
+  Context as ContextInterface,
+  HttpError,
+} from "@raptor/types";
 
 /**
  * The context definition.
@@ -20,6 +24,11 @@ export default class Context implements ContextInterface {
   public error?: HttpError | Error;
 
   /**
+   * The connection the request arrived on, where the adapter supplied one.
+   */
+  public readonly connection?: ConnInfo;
+
+  /**
    * If the response has content type set.
    */
   private _hasContentType?: boolean;
@@ -28,10 +37,15 @@ export default class Context implements ContextInterface {
    * Initialise an HTTP context.
    *
    * @constructor
+   *
+   * @param request The current HTTP request.
+   * @param response The current HTTP response.
+   * @param connection The connection the request arrived on, if known.
    */
-  constructor(request: Request, response: Response) {
+  constructor(request: Request, response: Response, connection?: ConnInfo) {
     this.request = request;
     this.response = response;
+    this.connection = connection;
   }
 
   /**

@@ -19,6 +19,10 @@ import TooManyRequests from "./src/error/too-many-requests.ts";
 import MethodNotAllowed from "./src/error/method-not-allowed.ts";
 import UnprocessableEntity from "./src/error/unprocessable-entity.ts";
 
+// Request helpers.
+import { canonicaliseAddress } from "./src/request/ip.ts";
+import { clientAddress, compileTrust } from "./src/request/client-address.ts";
+
 // In-built response classes.
 import { ResponseBodyType } from "./src/response/body-type.ts";
 import DefaultResponseManager from "./src/response/manager.ts";
@@ -38,12 +42,21 @@ import ResponseObjectResponseProcessor from "./src/response/processors/response-
 
 // Export all available interfaces/types.
 export type { Config } from "./src/config.ts";
+export type { ServerManager } from "./src/interfaces/server-manager.ts";
+export type { Trust, TrustResolver } from "./src/request/client-address.ts";
 export type { ResponseManager } from "./src/interfaces/response-manager.ts";
 export type { ResponseProcessor } from "./src/interfaces/response-processor.ts";
+export type {
+  RequestHandler,
+  ServerAdapter,
+} from "./src/interfaces/server-adapter.ts";
 
 export {
   BadRequest,
   BunServerAdapter,
+  canonicaliseAddress,
+  clientAddress,
+  compileTrust,
   Conflict,
   ContentNegotiator,
   Context,

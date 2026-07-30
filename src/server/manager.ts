@@ -1,5 +1,8 @@
-import type { ServerAdapter } from "../interfaces/server-adapter.ts";
 import type { ServerManager } from "../interfaces/server-manager.ts";
+import type {
+  RequestHandler,
+  ServerAdapter,
+} from "../interfaces/server-adapter.ts";
 
 import BunServer from "./adapters/bun.ts";
 import NodeServer from "./adapters/node.ts";
@@ -22,7 +25,7 @@ export default class Manager implements ServerManager {
    * @param options Server configuration options
    */
   public serve(
-    handler: (request: Request) => Promise<Response>,
+    handler: RequestHandler,
     options?: { port?: number; hostname?: string },
   ): void {
     const adapter = this.getServerAdapter();

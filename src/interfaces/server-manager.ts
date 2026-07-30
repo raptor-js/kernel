@@ -1,4 +1,4 @@
-import type { ServerAdapter } from "./server-adapter.ts";
+import type { RequestHandler, ServerAdapter } from "./server-adapter.ts";
 
 /**
  * Manages the serving of applications.
@@ -11,7 +11,7 @@ export interface ServerManager {
    * @param options Server configuration options
    */
   serve(
-    handler: (request: Request) => Promise<Response>,
+    handler: RequestHandler,
     options?: { port?: number; hostname?: string },
   ): void;
 

@@ -1,4 +1,9 @@
-import type { ErrorHandler, HttpError, Middleware } from "@raptor/types";
+import type {
+  ConnInfo,
+  ErrorHandler,
+  HttpError,
+  Middleware,
+} from "@raptor/types";
 
 import Context from "./context.ts";
 import DefaultServerManager from "./server/manager.ts";
@@ -122,7 +127,8 @@ export default class Kernel {
     const port = this.config?.port;
     const hostname = this.config?.hostname;
 
-    const handler = (request: Request) => this.respond(request);
+    const handler = (request: Request, connection?: ConnInfo) =>
+      this.respond(request, connection);
 
     if (!this.config?.port) {
       this.serverManager.serve(handler);
@@ -148,11 +154,15 @@ export default class Kernel {
    * Handle an HTTP request and respond.
    *
    * @param request The request object.
+   * @param connection The connection the request arrived on, if known.
    *
    * @returns A promise resolving the HTTP response.
    */
-  public async respond(request: Request): Promise<Response> {
-    const context = new Context(request, new Response());
+  public async respond(
+    request: Request,
+    connection?: ConnInfo,
+  ): Promise<Response> {
+    const context = new Context(request, new Response(), connection);
 
     await this.next(context);
 
