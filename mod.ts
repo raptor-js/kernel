@@ -20,6 +20,7 @@ import MethodNotAllowed from "./src/error/method-not-allowed.ts";
 import UnprocessableEntity from "./src/error/unprocessable-entity.ts";
 
 // Request helpers.
+import { connInfoFor } from "./src/request/connection.ts";
 import { canonicaliseAddress } from "./src/request/ip.ts";
 import { clientAddress, compileTrust } from "./src/request/client-address.ts";
 
@@ -58,6 +59,7 @@ export {
   clientAddress,
   compileTrust,
   Conflict,
+  connInfoFor,
   ContentNegotiator,
   Context,
   DefaultResponseManager,
