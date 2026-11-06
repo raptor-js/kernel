@@ -44,6 +44,7 @@ import ResponseObjectResponseProcessor from "./src/response/processors/response-
 // Export all available interfaces/types.
 export type { Config } from "./src/config.ts";
 export type { ServerManager } from "./src/interfaces/server-manager.ts";
+export type { NodeServerOptions } from "./src/server/adapters/node.ts";
 export type { Trust, TrustResolver } from "./src/request/client-address.ts";
 export type { ResponseManager } from "./src/interfaces/response-manager.ts";
 export type { ResponseProcessor } from "./src/interfaces/response-processor.ts";

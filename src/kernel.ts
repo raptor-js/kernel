@@ -6,6 +6,7 @@ import type {
 } from "@raptor-js/types";
 
 import Context from "./context.ts";
+import NodeServer from "./server/adapters/node.ts";
 import DefaultServerManager from "./server/manager.ts";
 import DefaultResponseManager from "./response/manager.ts";
 
@@ -65,8 +66,17 @@ export default class Kernel {
       ...config,
     };
 
-    this.serverManager = this.config.server?.manager!;
+    // A server option given without a manager still gets the default one.
+    this.serverManager =
+      this.config.server?.manager ?? new DefaultServerManager();
     this.responseManager = this.config.response?.manager!;
+
+    if (this.config.server?.node) {
+      this.serverManager.register(
+        "node",
+        new NodeServer(this.config.server.node),
+      );
+    }
 
     this.registerConfigMiddleware(this.config);
     this.registerConfigResponseProcessors(this.config);

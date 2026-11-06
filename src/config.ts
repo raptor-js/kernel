@@ -1,6 +1,7 @@
 import type { ErrorHandler, Middleware } from "@raptor-js/types";
 
 import type { ServerManager } from "./interfaces/server-manager.ts";
+import type { NodeServerOptions } from "./server/adapters/node.ts";
 import type { ResponseManager } from "./interfaces/response-manager.ts";
 import type { ResponseProcessor } from "./interfaces/response-processor.ts";
 
@@ -56,6 +57,11 @@ export interface Config {
      * Allows overriding the default server behavior.
      */
     manager?: ServerManager;
+
+    /**
+     * Options for serving on Node.
+     */
+    node?: NodeServerOptions;
   };
 
   /**

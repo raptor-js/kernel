@@ -1,7 +1,11 @@
 import type { ConnInfo } from "@raptor-js/types";
 
-import { getRawBody } from "../../response/raw-body.ts";
 import { connInfoFor } from "../../request/connection.ts";
+import { createLightweightRequest } from "./lightweight-request.ts";
+import {
+  getRawBody,
+  useLightweightResponses,
+} from "../../response/raw-body.ts";
 
 import type {
   RequestHandler,
@@ -39,6 +43,18 @@ const HOST_PATTERN =
 const MAX_HOST_LENGTH = 260;
 
 /**
+ * Options for serving on Node.
+ */
+export interface NodeServerOptions {
+  /**
+   * Use lightweight stand-ins for each Request and built-in Response, which
+   * do much less work per request. They pass every instanceof check, but
+   * fetch() and new Request() refuse a lightweight context.request.
+   */
+  lightweight?: boolean;
+}
+
+/**
  * The Node server implementation for Raptor.
  */
 export default class NodeServer implements ServerAdapter {
@@ -46,6 +62,22 @@ export default class NodeServer implements ServerAdapter {
    * The connection each socket reported, read once for all the requests it carries.
    */
   private connections = new WeakMap<object, ConnInfo | undefined>();
+
+  /**
+   * The options this server was created with.
+   */
+  private options: NodeServerOptions;
+
+  /**
+   * Initialise the Node server.
+   *
+   * @constructor
+   *
+   * @param options Options for serving on Node.
+   */
+  constructor(options: NodeServerOptions = {}) {
+    this.options = options;
+  }
 
   /**
    * Start the server with the given request handler.
@@ -58,6 +90,10 @@ export default class NodeServer implements ServerAdapter {
     options?: { port?: number; hostname?: string },
   ): Promise<void> {
     const { createServer } = await import("node:http");
+
+    if (this.options.lightweight) {
+      useLightweightResponses();
+    }
 
     const authority = this.authorityFor(options);
 
@@ -179,13 +215,19 @@ export default class NodeServer implements ServerAdapter {
 
     const url = `${protocol}//${host}${nodeRequest.url}`;
 
+    const body =
+      nodeRequest.method !== "GET" && nodeRequest.method !== "HEAD"
+        ? (nodeRequest as unknown as ReadableStream<Uint8Array>)
+        : undefined;
+
+    if (this.options.lightweight) {
+      return createLightweightRequest(nodeRequest, url, () => body);
+    }
+
     return new Request(url, {
       method: nodeRequest.method,
       headers: nodeRequest.headers as HeadersInit,
-      body:
-        nodeRequest.method !== "GET" && nodeRequest.method !== "HEAD"
-          ? (nodeRequest as unknown as ReadableStream<Uint8Array>)
-          : undefined,
+      body,
       duplex: "half",
     } as RequestInit);
   }

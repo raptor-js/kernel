@@ -6,6 +6,7 @@ import Kernel from "./kernel.ts";
 import NotFound from "./error/not-found.ts";
 import BadRequest from "./error/bad-request.ts";
 import ServerError from "./error/server-error.ts";
+import DefaultServerManager from "./server/manager.ts";
 import DefaultResponseManager from "./response/manager.ts";
 
 const APP_URL = "http://localhost:8000";
@@ -431,4 +432,10 @@ test("test kernel runs middleware added after the first request", async () => {
   const response = await app.respond(new Request(APP_URL));
 
   assert.deepStrictEqual(await response.text(), "Added Later");
+});
+
+test("test kernel keeps the default server manager when only node options are given", () => {
+  const app = new Kernel({ server: { node: { lightweight: true } } });
+
+  assert.ok(app.getServerManager() instanceof DefaultServerManager);
 });
