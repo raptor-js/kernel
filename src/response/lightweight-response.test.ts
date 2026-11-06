@@ -71,3 +71,35 @@ test("kernel middleware can read a lightweight response after next", async () =>
   assert.deepStrictEqual(seen, "Test Successful");
   assert.deepStrictEqual(await response.text(), "Test Successful");
 });
+
+test("lightweight placeholder ends with no body when nothing answers it", async () => {
+  const app = new Kernel();
+
+  app.add(async (_context, next) => {
+    await next();
+  });
+
+  const response = await app.respond(new Request("http://localhost:8000/"));
+
+  assert.ok(response instanceof Response);
+  assert.deepStrictEqual(response.status, 200);
+  assert.deepStrictEqual(getRawBody(response), "");
+  assert.deepStrictEqual(response.body, null);
+});
+
+test("lightweight placeholder carries headers set before next to the final response", async () => {
+  const app = new Kernel();
+
+  app.add(async (context, next) => {
+    context.response.headers.set("x-before", "kept");
+
+    await next();
+  });
+
+  app.add(() => "Test Successful");
+
+  const response = await app.respond(new Request("http://localhost:8000/"));
+
+  assert.deepStrictEqual(response.headers.get("x-before"), "kept");
+  assert.deepStrictEqual(await response.text(), "Test Successful");
+});

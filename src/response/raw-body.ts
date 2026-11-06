@@ -22,7 +22,7 @@ const realResponse = Symbol("response");
  */
 interface Lightweight {
   [fields]: {
-    body: string;
+    body: string | null;
     status: number;
     statusText: string;
     headers: Headers;
@@ -103,13 +103,30 @@ export const useLightweightResponses = (): void => {
  * @returns A standard response, or a lightweight one when they are turned on.
  */
 export const createResponse = (body: string, init: ResponseInit): Response => {
-  const response = lightweight
-    ? createLightweightResponse(body, init)
-    : new Response(body, init);
+  // A lightweight response holds its own text, so only real ones are remembered here.
+  if (lightweight) {
+    return createLightweightResponse(body, init);
+  }
+
+  const response = new Response(body, init);
 
   rawBodies.set(response, body);
 
   return response;
+};
+
+/**
+ * Create the empty response a request starts with, before any middleware has
+ * answered it.
+ *
+ * @returns An empty standard response, or a lightweight one when they are turned on.
+ */
+export const createPlaceholder = (): Response => {
+  if (!lightweight) {
+    return new Response();
+  }
+
+  return createLightweightResponse(null, {});
 };
 
 /**
@@ -122,7 +139,7 @@ export const createResponse = (body: string, init: ResponseInit): Response => {
  * @returns A lightweight response.
  */
 const createLightweightResponse = (
-  body: string,
+  body: string | null,
   init: ResponseInit,
 ): Response => {
   const response = Object.create(prototype) as Lightweight;
@@ -147,6 +164,13 @@ const createLightweightResponse = (
 export const getRawBody = (response: Response): string | undefined => {
   if (response.bodyUsed) {
     return undefined;
+  }
+
+  const standIn = response as unknown as Partial<Lightweight>;
+
+  // An empty lightweight response ends the way an empty real one would, with no body.
+  if (standIn[fields] && !standIn[realResponse]) {
+    return standIn[fields].body ?? "";
   }
 
   return rawBodies.get(response);

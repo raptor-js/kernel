@@ -6,6 +6,7 @@ import type {
 } from "@raptor-js/types";
 
 import Context from "./context.ts";
+import { createPlaceholder } from "./response/raw-body.ts";
 import NodeServer from "./server/adapters/node.ts";
 import DefaultServerManager from "./server/manager.ts";
 import DefaultResponseManager from "./response/manager.ts";
@@ -178,7 +179,7 @@ export default class Kernel {
     request: Request,
     connection?: ConnInfo,
   ): Promise<Response> {
-    const context = new Context(request, new Response(), connection);
+    const context = new Context(request, createPlaceholder(), connection);
 
     await this.executeMiddleware(context, 0);
 
