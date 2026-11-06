@@ -13,7 +13,15 @@ const runtime = process.argv[2] ?? "node";
 // On Deno only the frameworks built on web standards run natively; the rest would go through Node compatibility.
 const runtimes: Record<string, { frameworks: string[]; command: string[] }> = {
   node: {
-    frameworks: ["raptor", "hono", "h3", "express", "koa", "fastify"],
+    frameworks: [
+      "raptor",
+      "raptor-lightweight",
+      "hono",
+      "h3",
+      "express",
+      "koa",
+      "fastify",
+    ],
     command: [process.execPath],
   },
   deno: {
@@ -76,7 +84,7 @@ for (const [index, scenario] of scenarios.entries()) {
       const rate = Math.round(result.requests.average).toLocaleString("en");
 
       console.log(
-        `  ${name.padEnd(8)} ${rate.padStart(8)} req/s   p50 ${result.latency.p50} ms   p99 ${result.latency.p99} ms${failed ? `   ${failed} failed` : ""}`,
+        `  ${name.padEnd(18)} ${rate.padStart(8)} req/s   p50 ${result.latency.p50} ms   p99 ${result.latency.p99} ms${failed ? `   ${failed} failed` : ""}`,
       );
     } finally {
       server.kill();

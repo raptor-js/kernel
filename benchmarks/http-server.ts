@@ -36,6 +36,25 @@ const servers: Record<string, () => unknown> = {
     app.serve();
   },
 
+  // Raptor with the opt-in lightweight Request and Response on Node.
+  "raptor-lightweight": () => {
+    const app = new Kernel({
+      port,
+      hostname,
+      server: { node: { lightweight: true } },
+    });
+
+    for (let i = 0; i < scenario.chain; i++) {
+      app.add(async (_context, next) => {
+        await next();
+      });
+    }
+
+    app.add(() => (scenario.json ? data : "OK"));
+
+    app.serve();
+  },
+
   hono: () => {
     const app = new Hono();
 
