@@ -1,6 +1,6 @@
 {
   "name": "@raptor-js/kernel",
-  "version": "0.29.0",
+  "version": "0.30.0",
   "description": "The core of the Raptor framework: middleware, context and responses.",
   "license": "MIT",
   "homepage": "https://raptorjs.com",
