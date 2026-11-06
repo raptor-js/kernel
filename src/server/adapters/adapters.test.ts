@@ -312,3 +312,34 @@ test("node adapter writes a built-in response's text without reading its stream"
   assert.deepStrictEqual(calls, ["end OK"]);
   assert.deepStrictEqual(response.bodyUsed, false);
 });
+
+test("node adapter gives each request on a socket its own copy of the connection", () => {
+  const server = new NodeServer();
+  const socket = { remoteAddress: "203.0.113.5", remotePort: 4000 };
+
+  const first = connInfoOf(server, { socket });
+  const second = connInfoOf(server, { socket });
+
+  assert.deepStrictEqual(first, {
+    remote: { address: "203.0.113.5", port: 4000, addressType: "IPv4" },
+  });
+  assert.deepStrictEqual(second, first);
+  assert.notStrictEqual(second, first);
+  assert.notStrictEqual(second?.remote, first?.remote);
+});
+
+test("node adapter checks each host header on its own", () => {
+  const server = new NodeServer();
+  const hostFor = (host: unknown) =>
+    (server as any).hostFor({ headers: { host } }, "configured.example:8080");
+
+  assert.deepStrictEqual(hostFor("example.com"), "example.com");
+  assert.deepStrictEqual(hostFor("example.com"), "example.com");
+  assert.deepStrictEqual(hostFor("bad host"), "configured.example:8080");
+  assert.deepStrictEqual(
+    hostFor(["example.com", "example.com"]),
+    "configured.example:8080",
+  );
+  assert.deepStrictEqual(hostFor(" example.com "), "example.com");
+  assert.deepStrictEqual(hostFor(undefined), "configured.example:8080");
+});

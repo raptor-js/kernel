@@ -43,6 +43,11 @@ const MAX_HOST_LENGTH = 260;
  */
 export default class NodeServer implements ServerAdapter {
   /**
+   * The connection each socket reported, read once for all the requests it carries.
+   */
+  private connections = new WeakMap<object, ConnInfo | undefined>();
+
+  /**
    * Start the server with the given request handler.
    *
    * @param handler The request handler function
@@ -115,9 +120,19 @@ export default class NodeServer implements ServerAdapter {
    * @returns The connection, or undefined if the socket reports no peer.
    */
   private toConnInfo(nodeRequest: NodeIncomingMessage): ConnInfo | undefined {
-    const { remoteAddress, remotePort } = nodeRequest.socket;
+    const { socket } = nodeRequest;
 
-    return connInfoFor(remoteAddress, remotePort);
+    if (!this.connections.has(socket)) {
+      this.connections.set(
+        socket,
+        connInfoFor(socket.remoteAddress, socket.remotePort),
+      );
+    }
+
+    const connection = this.connections.get(socket);
+
+    // Each request gets its own copy, so one cannot change what the next on the socket sees.
+    return connection && { remote: { ...connection.remote } };
   }
 
   /**
