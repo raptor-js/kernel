@@ -4,6 +4,7 @@ import { test } from "node:test";
 import type { ConnInfo } from "@raptor-js/types";
 
 import ServerError from "../../error/server-error.ts";
+import { createResponse } from "../../response/raw-body.ts";
 
 import BunServer from "./bun.ts";
 import DenoServer from "./deno.ts";
@@ -253,8 +254,14 @@ const writeThroughNode = async (response: Response) => {
     setHeader: () => {},
     write: (chunk: Uint8Array) =>
       calls.push(`write ${new TextDecoder().decode(chunk)}`),
-    end: (chunk?: Uint8Array) =>
-      calls.push(chunk ? `end ${new TextDecoder().decode(chunk)}` : "end"),
+    end: (chunk?: Uint8Array | string) => {
+      if (chunk === undefined) return calls.push("end");
+
+      const text =
+        typeof chunk === "string" ? chunk : new TextDecoder().decode(chunk);
+
+      return calls.push(`end ${text}`);
+    },
   };
 
   await (new NodeServer() as any).fromWebResponse(response, nodeResponse);
@@ -292,4 +299,16 @@ test("node adapter streams a body that arrives in several chunks", async () => {
   const { calls } = await writeThroughNode(new Response(body));
 
   assert.deepStrictEqual(calls, ["write a", "write b", "write c", "end"]);
+});
+
+test("node adapter writes a built-in response's text without reading its stream", async () => {
+  const response = createResponse("OK", {
+    status: 200,
+    headers: { "content-type": "text/plain" },
+  });
+
+  const { calls } = await writeThroughNode(response);
+
+  assert.deepStrictEqual(calls, ["end OK"]);
+  assert.deepStrictEqual(response.bodyUsed, false);
 });

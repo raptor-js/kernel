@@ -1,6 +1,7 @@
 // biome-ignore-all lint/suspicious/noExplicitAny: middleware may return a value of any type
 
 import type Context from "../../context.ts";
+import { createResponse } from "../raw-body.ts";
 import type { ResponseProcessor } from "../../interfaces/response-processor.ts";
 
 export const HTML_REGEX = /<[a-z/][\s\S]*>/i;
@@ -32,7 +33,7 @@ export default class StringProcessor implements ResponseProcessor {
       context.response.headers.set("content-type", "text/plain");
     }
 
-    return new Response(body, {
+    return createResponse(body, {
       status: context.response.status,
       headers: context.response.headers,
     });

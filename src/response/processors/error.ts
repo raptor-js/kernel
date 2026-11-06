@@ -3,6 +3,7 @@
 import type { HttpError } from "@raptor-js/types";
 
 import type Context from "../../context.ts";
+import { createResponse } from "../raw-body.ts";
 import ContentNegotiator from "../content-negotiator.ts";
 import type { ResponseProcessor } from "../../interfaces/response-processor.ts";
 
@@ -72,7 +73,7 @@ export default class ErrorProcessor implements ResponseProcessor {
       `${contentType}; charset=utf-8`,
     );
 
-    return new Response(body, {
+    return createResponse(body, {
       status: this.isHttpError(error) ? error.status : 500,
       headers: context.response.headers,
     });

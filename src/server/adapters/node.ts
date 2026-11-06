@@ -1,5 +1,6 @@
 import type { ConnInfo } from "@raptor-js/types";
 
+import { getRawBody } from "../../response/raw-body.ts";
 import { connInfoFor } from "../../request/connection.ts";
 
 import type {
@@ -22,7 +23,7 @@ interface NodeServerResponse {
   statusCode: number;
   setHeader(name: string, value: string | string[]): void;
   write(chunk: Uint8Array): void;
-  end(chunk?: Uint8Array): void;
+  end(chunk?: Uint8Array | string): void;
 }
 
 /**
@@ -65,6 +66,7 @@ export default class NodeServer implements ServerAdapter {
         const connection = this.toConnInfo(nodeRequest as NodeIncomingMessage);
 
         const response = await handler(request, connection);
+
         await this.fromWebResponse(
           response,
           nodeResponse as NodeServerResponse,
@@ -188,6 +190,15 @@ export default class NodeServer implements ServerAdapter {
     response.headers.forEach((value, key) => {
       nodeResponse.setHeader(key, value);
     });
+
+    const rawBody = getRawBody(response);
+
+    // A built-in response goes out as the text it was made from, with no stream to read back.
+    if (rawBody !== undefined) {
+      nodeResponse.end(rawBody);
+
+      return;
+    }
 
     if (!response.body) {
       nodeResponse.end();

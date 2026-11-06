@@ -1,6 +1,7 @@
 // biome-ignore-all lint/suspicious/noExplicitAny: middleware may return a value of any type
 
 import type Context from "../../context.ts";
+import { createResponse } from "../raw-body.ts";
 import ServerError from "../../error/server-error.ts";
 import type { ResponseProcessor } from "../../interfaces/response-processor.ts";
 
@@ -27,7 +28,7 @@ export default class ObjectProcessor implements ResponseProcessor {
     try {
       const jsonBody = JSON.stringify(body);
 
-      return new Response(jsonBody, {
+      return createResponse(jsonBody, {
         status: context.response.status,
         headers: context.response.headers,
       });
