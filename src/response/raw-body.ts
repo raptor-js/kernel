@@ -1,13 +1,20 @@
 import { forwardToReal, RESPONSE_MEMBERS } from "../lightweight.ts";
 
 /**
- * The text each built-in response was made from, keyed by the response itself.
+ * The key a built-in response keeps the text it was made from under.
  *
  * A server adapter can write this text straight to the socket instead of
  * reading the response's body stream back, which is most of the cost of a
- * small response. Responses made any other way are simply not in here.
+ * small response. Responses made any other way do not have it. It sits on the
+ * response itself rather than in a WeakMap, which costs every garbage
+ * collection a little for each entry.
  */
-const rawBodies = new WeakMap<Response, string>();
+const rawText = Symbol("raw text");
+
+/**
+ * A response that may carry the text it was made from.
+ */
+type WithRawText = Response & { [rawText]?: string };
 
 /**
  * Whether built-in responses are lightweight stand-ins rather than real ones.
@@ -103,14 +110,14 @@ export const useLightweightResponses = (): void => {
  * @returns A standard response, or a lightweight one when they are turned on.
  */
 export const createResponse = (body: string, init: ResponseInit): Response => {
-  // A lightweight response holds its own text, so only real ones are remembered here.
+  // A lightweight response holds its own text in its fields.
   if (lightweight) {
     return createLightweightResponse(body, init);
   }
 
-  const response = new Response(body, init);
+  const response: WithRawText = new Response(body, init);
 
-  rawBodies.set(response, body);
+  response[rawText] = body;
 
   return response;
 };
@@ -173,5 +180,5 @@ export const getRawBody = (response: Response): string | undefined => {
     return standIn[fields].body ?? "";
   }
 
-  return rawBodies.get(response);
+  return (response as WithRawText)[rawText];
 };
