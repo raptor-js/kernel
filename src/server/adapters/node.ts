@@ -22,7 +22,7 @@ interface NodeServerResponse {
   statusCode: number;
   setHeader(name: string, value: string | string[]): void;
   write(chunk: Uint8Array): void;
-  end(): void;
+  end(chunk?: Uint8Array): void;
 }
 
 /**
@@ -189,16 +189,40 @@ export default class NodeServer implements ServerAdapter {
       nodeResponse.setHeader(key, value);
     });
 
-    if (response.body) {
-      const reader = response.body.getReader();
+    if (!response.body) {
+      nodeResponse.end();
 
-      while (true) {
-        const { done, value } = await reader.read();
+      return;
+    }
 
-        if (done) break;
+    const reader = response.body.getReader();
 
-        nodeResponse.write(value);
-      }
+    const first = await reader.read();
+
+    if (first.done) {
+      nodeResponse.end();
+
+      return;
+    }
+
+    const second = await reader.read();
+
+    // A body that arrives whole goes out in one write, with a Content-Length.
+    if (second.done) {
+      nodeResponse.end(first.value);
+
+      return;
+    }
+
+    nodeResponse.write(first.value);
+    nodeResponse.write(second.value);
+
+    while (true) {
+      const { done, value } = await reader.read();
+
+      if (done) break;
+
+      nodeResponse.write(value);
     }
 
     nodeResponse.end();

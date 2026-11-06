@@ -241,3 +241,55 @@ test("node adapter builds the fallback authority from server options", () => {
     "[::1]:80",
   );
 });
+
+/**
+ * Write a web response through the node adapter and record what reached the socket.
+ */
+const writeThroughNode = async (response: Response) => {
+  const calls: string[] = [];
+
+  const nodeResponse = {
+    statusCode: 0,
+    setHeader: () => {},
+    write: (chunk: Uint8Array) =>
+      calls.push(`write ${new TextDecoder().decode(chunk)}`),
+    end: (chunk?: Uint8Array) =>
+      calls.push(chunk ? `end ${new TextDecoder().decode(chunk)}` : "end"),
+  };
+
+  await (new NodeServer() as any).fromWebResponse(response, nodeResponse);
+
+  return { calls, status: nodeResponse.statusCode };
+};
+
+test("node adapter sends a whole body in a single end call", async () => {
+  const { calls, status } = await writeThroughNode(
+    new Response("OK", { status: 201 }),
+  );
+
+  assert.deepStrictEqual(calls, ["end OK"]);
+  assert.deepStrictEqual(status, 201);
+});
+
+test("node adapter ends a response that has no body", async () => {
+  const { calls } = await writeThroughNode(new Response(null, { status: 204 }));
+
+  assert.deepStrictEqual(calls, ["end"]);
+});
+
+test("node adapter streams a body that arrives in several chunks", async () => {
+  const encoder = new TextEncoder();
+
+  const body = new ReadableStream({
+    start(controller) {
+      controller.enqueue(encoder.encode("a"));
+      controller.enqueue(encoder.encode("b"));
+      controller.enqueue(encoder.encode("c"));
+      controller.close();
+    },
+  });
+
+  const { calls } = await writeThroughNode(new Response(body));
+
+  assert.deepStrictEqual(calls, ["write a", "write b", "write c", "end"]);
+});
