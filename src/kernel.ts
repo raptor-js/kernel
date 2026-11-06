@@ -287,16 +287,15 @@ export default class Kernel {
 
     let called = false;
 
-    const next = async () => {
+    // Hands back the next step's promise as it is, so a chain adds no async frame of its own per step.
+    const next = (): Promise<Response | void> => {
       if (called) {
-        return;
+        return Promise.resolve();
       }
 
       called = true;
 
-      index++;
-
-      await this.executeMiddleware(context, index);
+      return this.executeMiddleware(context, index + 1);
     };
 
     try {
