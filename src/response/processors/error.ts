@@ -1,6 +1,6 @@
-// deno-lint-ignore-file no-explicit-any
+// biome-ignore-all lint/suspicious/noExplicitAny: middleware may return a value of any type
 
-import type { HttpError } from "@raptor/types";
+import type { HttpError } from "@raptor-js/types";
 
 import type Context from "../../context.ts";
 import ContentNegotiator from "../content-negotiator.ts";
@@ -28,10 +28,7 @@ export default class ErrorProcessor implements ResponseProcessor {
    * @returns A boolean indicating whether it's an HTTP error.
    */
   private isHttpError(error: Error): error is HttpError {
-    return (
-      "status" in error &&
-      typeof (error as any).status === "number"
-    );
+    return "status" in error && typeof (error as any).status === "number";
   }
 
   /**
@@ -206,14 +203,15 @@ export default class ErrorProcessor implements ResponseProcessor {
 
     const items = Object.entries(errors)
       .flatMap(([field, messages]) =>
-        messages.map((message) =>
-          `<li>
+        messages.map(
+          (message) =>
+            `<li>
             <strong>
               ${this.escapeHtml(field)}:
             </strong>
             ${this.escapeHtml(message)}
-          </li>`
-        )
+          </li>`,
+        ),
       )
       .join("\n");
 

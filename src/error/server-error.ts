@@ -1,4 +1,4 @@
-import type { HttpError } from "@raptor/types";
+import type { HttpError } from "@raptor-js/types";
 
 /**
  * An error used primarily in 500 server errors.
@@ -13,7 +13,7 @@ export default class ServerError extends Error implements HttpError {
     super();
 
     this.name = "Server Error";
-    this.message = message ??
-      "There was an unexpected error handling your request";
+    this.message =
+      message ?? "There was an unexpected error handling your request";
   }
 }

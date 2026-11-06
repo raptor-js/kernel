@@ -3,9 +3,7 @@
 
   <p align="center">
     <a href="https://github.com/raptor-js/kernel/actions"><img src="https://github.com/raptor-js/kernel/workflows/ci/badge.svg" alt="Build Status"></a>
-    <a href="jsr.io/@raptor/kernel"><img src="https://jsr.io/badges/@raptor/kernel" /></a>
-    <a href="jsr.io/@raptor/kernel score"><img src="https://jsr.io/badges/@raptor/kernel/score" /></a>
-    <a href="https://jsr.io/@raptor"><img src="https://jsr.io/badges/@raptor" alt="" /></a>
+    <a href="https://www.npmjs.com/package/@raptor-js/kernel"><img src="https://img.shields.io/npm/v/@raptor-js/kernel" alt="npm version" /></a>
   </p>
 </p>
 

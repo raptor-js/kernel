@@ -1,4 +1,4 @@
-// deno-lint-ignore-file no-explicit-any
+// biome-ignore-all lint/suspicious/noExplicitAny: middleware may return a value of any type
 
 import type Context from "../context.ts";
 
@@ -13,8 +13,5 @@ export interface ResponseProcessor {
    * @param context The current HTTP context.
    * @returns An HTTP response or null.
    */
-  process(
-    body: any,
-    context: Context,
-  ): Promise<Response> | Response;
+  process(body: any, context: Context): Promise<Response> | Response;
 }

@@ -51,10 +51,10 @@ export default class Manager implements ServerManager {
    * @returns The name of the adapter to use.
    */
   protected getServerAdapter(): string {
-    // deno-lint-ignore no-explicit-any
+    // biome-ignore lint/suspicious/noExplicitAny: the runtime global has no types here
     const Bun = (globalThis as any).Bun;
 
-    // deno-lint-ignore no-explicit-any
+    // biome-ignore lint/suspicious/noExplicitAny: the runtime global has no types here
     const Deno = (globalThis as any).Deno;
 
     if (typeof Deno !== "undefined") {

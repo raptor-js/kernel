@@ -1,33 +1,31 @@
-/// <reference lib="deno.ns" />
-// deno-lint-ignore-file
-
-import { assertEquals } from "jsr:@std/assert";
+import assert from "node:assert/strict";
+import { test } from "node:test";
 
 import ServerError from "./server-error.ts";
 
-Deno.test("server error has correct status code", () => {
+test("server error has correct status code", () => {
   const error = new ServerError();
 
-  assertEquals(error.status, 500);
+  assert.deepStrictEqual(error.status, 500);
 });
 
-Deno.test("server error has correct name", () => {
+test("server error has correct name", () => {
   const error = new ServerError();
 
-  assertEquals(error.name, "Server Error");
+  assert.deepStrictEqual(error.name, "Server Error");
 });
 
-Deno.test("server error has default message", () => {
+test("server error has default message", () => {
   const error = new ServerError();
 
-  assertEquals(
+  assert.deepStrictEqual(
     error.message,
     "There was an unexpected error handling your request",
   );
 });
 
-Deno.test("server error accepts custom message", () => {
+test("server error accepts custom message", () => {
   const error = new ServerError("Database connection failed");
 
-  assertEquals(error.message, "Database connection failed");
+  assert.deepStrictEqual(error.message, "Database connection failed");
 });

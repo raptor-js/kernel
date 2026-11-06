@@ -1,4 +1,4 @@
-import type { ConnInfo } from "@raptor/types";
+import type { ConnInfo } from "@raptor-js/types";
 
 import ServerError from "../../error/server-error.ts";
 import { connInfoFor } from "../../request/connection.ts";
@@ -38,7 +38,7 @@ export default class BunServer implements ServerAdapter {
     handler: RequestHandler,
     options?: { port?: number; hostname?: string },
   ): void {
-    // deno-lint-ignore no-explicit-any
+    // biome-ignore lint/suspicious/noExplicitAny: the runtime global has no types here
     const Bun = (globalThis as any).Bun;
 
     if (typeof Bun === "undefined") {

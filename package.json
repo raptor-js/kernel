@@ -1,0 +1,43 @@
+{
+  "name": "@raptor-js/kernel",
+  "version": "0.28.0",
+  "description": "The core of the Raptor framework: middleware, context and responses.",
+  "license": "MIT",
+  "homepage": "https://raptorjs.com",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/raptor-js/kernel.git"
+  },
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/mod.d.ts",
+      "default": "./dist/mod.js"
+    }
+  },
+  "files": [
+    "dist",
+    "!dist/**/*.test.*"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "lint": "biome check",
+    "format": "biome check --write",
+    "test": "node --test 'src/**/*.test.ts'",
+    "test:watch": "node --test --watch 'src/**/*.test.ts'",
+    "test:coverage": "node --test --experimental-test-coverage 'src/**/*.test.ts'",
+    "bench": "node benchmark.ts",
+    "prepack": "npm run build"
+  },
+  "dependencies": {
+    "@raptor-js/types": "^0.4.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.6.6",
+    "@types/node": "^26.6.6",
+    "hono": "^4.13.16",
+    "mitata": "^1.0.34",
+    "typescript": "^7.0.2"
+  }
+}

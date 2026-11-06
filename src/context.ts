@@ -2,7 +2,7 @@ import type {
   ConnInfo,
   Context as ContextInterface,
   HttpError,
-} from "@raptor/types";
+} from "@raptor-js/types";
 
 /**
  * The context definition.

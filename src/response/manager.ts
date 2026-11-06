@@ -1,4 +1,4 @@
-// deno-lint-ignore-file no-explicit-any
+// biome-ignore-all lint/suspicious/noExplicitAny: middleware may return a value of any type
 
 import type Context from "../context.ts";
 import { ResponseBodyType } from "./body-type.ts";

@@ -39,17 +39,17 @@ git clone https://github.com/YOUR_USERNAME/raptor-kernel.git
 cd raptor-kernel
 
 # Run tests.
-deno task test
+npm test
 
 # Run tests in watch mode while developing.
-deno task test-watch
+npm run test:watch
 ```
 
 #### Pull Request Guidelines
 
 - **Keep it focused** - One feature or fix per PR
 - **Write tests** - New features should include tests
-- **Follow the style** - Run `deno fmt` before committing
+- **Follow the style** - Run `npm run format` before committing
 - **Update docs** - If you change APIs, provide documentation
 - **Cross-runtime** - Ensure changes work across Deno, Node.js, and Bun when
   applicable
@@ -90,20 +90,20 @@ The simplest way to show support! A star on
 The best contribution is using Raptor in your projects:
 
 ```sh
-# Deno
-deno add @raptor/kernel
-
 # npm
-npx jsr add @raptor/kernel
+npm install @raptor-js/kernel
 
 # Yarn
-yarn dlx jsr add @raptor/kernel
+yarn add @raptor-js/kernel
 
 # pnpm
-pnpm dlx jsr add @raptor/kernel
+pnpm add @raptor-js/kernel
 
 # Bun
-bunx jsr add @raptor/kernel
+bun add @raptor-js/kernel
+
+# Deno
+deno add npm:@raptor-js/kernel
 ```
 
 - Build something awesome with it
@@ -115,12 +115,12 @@ bunx jsr add @raptor/kernel
 
 ### Prerequisites
 
-Raptor supports Deno, Bun & Node runtimes. However, the framework has been
-written with Deno in mind so we recommend using Deno when contributing.
+Raptor supports Deno, Bun & Node runtimes. The packages are built and tested
+with Node, so you need Node to contribute.
 
+- [Node](https://nodejs.org) 26 or higher
 - [Deno](https://deno.com) 2.6.4 or higher
 - [Bun](https://bun.com) 1.3.5 or higher
-- [Node](https://nodejs.org) 24 or higher
 - Git
 
 ### Project Structure
@@ -142,26 +142,26 @@ raptor-framework/
 
 ```sh
 # Run all tests
-deno task test
+npm test
 
 # Run tests in watch mode
-deno task test-watch
+npm run test:watch
 
 # Generate coverage report
-deno task test-coverage
+npm run test:coverage
 ```
 
 ### Code Quality
 
 ```sh
 # Format code
-deno fmt
+npm run format
 
 # Lint code
-deno lint
+npm run lint
 
 # Type check
-deno check mod.ts
+npm run typecheck
 ```
 
 ## Questions?

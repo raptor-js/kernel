@@ -1,30 +1,28 @@
-/// <reference lib="deno.ns" />
-// deno-lint-ignore-file
-
-import { assertEquals } from "jsr:@std/assert";
+import assert from "node:assert/strict";
+import { test } from "node:test";
 
 import Forbidden from "./forbidden.ts";
 
-Deno.test("forbidden error has correct status code", () => {
+test("forbidden error has correct status code", () => {
   const error = new Forbidden();
 
-  assertEquals(error.status, 403);
+  assert.deepStrictEqual(error.status, 403);
 });
 
-Deno.test("forbidden error has correct name", () => {
+test("forbidden error has correct name", () => {
   const error = new Forbidden();
 
-  assertEquals(error.name, "Forbidden");
+  assert.deepStrictEqual(error.name, "Forbidden");
 });
 
-Deno.test("forbidden error has default message", () => {
+test("forbidden error has default message", () => {
   const error = new Forbidden();
 
-  assertEquals(error.message, "Server refused request");
+  assert.deepStrictEqual(error.message, "Server refused request");
 });
 
-Deno.test("forbidden error accepts custom message", () => {
+test("forbidden error accepts custom message", () => {
   const error = new Forbidden("Insufficient permissions");
 
-  assertEquals(error.message, "Insufficient permissions");
+  assert.deepStrictEqual(error.message, "Insufficient permissions");
 });

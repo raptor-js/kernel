@@ -1,8 +1,6 @@
-/// <reference lib="deno.ns" />
-// deno-lint-ignore-file
-
-import type { Context } from "@raptor/types";
-import { assertEquals } from "jsr:@std/assert";
+import type { Context } from "@raptor-js/types";
+import assert from "node:assert/strict";
+import { test } from "node:test";
 
 import Kernel from "./kernel.ts";
 import NotFound from "./error/not-found.ts";
@@ -14,55 +12,53 @@ const APP_URL = "http://localhost:8000";
 
 // Kernel configuration options.
 
-Deno.test("test kernel uses default configuration options.", async () => {
+test("test kernel uses default configuration options.", async () => {
   const app = new Kernel();
 
-  assertEquals(app.getConfig().strictContentNegotiation, false);
+  assert.deepStrictEqual(app.getConfig().strictContentNegotiation, false);
 });
 
-Deno.test("test kernel allows configuration options.", async () => {
+test("test kernel allows configuration options.", async () => {
   const app = new Kernel({
     strictContentNegotiation: true,
   });
 
-  assertEquals(app.getConfig().strictContentNegotiation, true);
+  assert.deepStrictEqual(app.getConfig().strictContentNegotiation, true);
 });
 
 // Middleware Registration.
 
-Deno.test("test kernel handles adding middleware", async () => {
+test("test kernel handles adding middleware", async () => {
   const app = new Kernel();
 
   app.add(() => "Test Successful");
 
   const response = await app.respond(new Request(APP_URL));
 
-  assertEquals(await response.text(), "Test Successful");
+  assert.deepStrictEqual(await response.text(), "Test Successful");
 });
 
-Deno.test("test kernel handles adding middleware with config", async () => {
+test("test kernel handles adding middleware with config", async () => {
   const app = new Kernel({
-    middleware: [
-      () => "Test Successful",
-    ],
+    middleware: [() => "Test Successful"],
   });
 
   const response = await app.respond(new Request(APP_URL));
 
-  assertEquals(await response.text(), "Test Successful");
+  assert.deepStrictEqual(await response.text(), "Test Successful");
 });
 
-Deno.test("test kernel handles alias method for adding middleware", async () => {
+test("test kernel handles alias method for adding middleware", async () => {
   const app = new Kernel();
 
   app.use(() => "Test Successful");
 
   const response = await app.respond(new Request(APP_URL));
 
-  assertEquals(await response.text(), "Test Successful");
+  assert.deepStrictEqual(await response.text(), "Test Successful");
 });
 
-Deno.test("test middleware next callback functionality", async () => {
+test("test middleware next callback functionality", async () => {
   const app = new Kernel();
 
   app.add(async (_ctx: Context, next: CallableFunction) => {
@@ -77,12 +73,15 @@ Deno.test("test middleware next callback functionality", async () => {
 
   const response = await app.respond(new Request(APP_URL));
 
-  assertEquals(await response.text(), "Hello from the second middleware");
+  assert.deepStrictEqual(
+    await response.text(),
+    "Hello from the second middleware",
+  );
 });
 
 // Context Manipulation.
 
-Deno.test("test kernel updates middleware context", async () => {
+test("test kernel updates middleware context", async () => {
   const app = new Kernel();
 
   app.add((ctx: Context) => {
@@ -93,12 +92,15 @@ Deno.test("test kernel updates middleware context", async () => {
 
   const response = await app.respond(new Request(APP_URL));
 
-  assertEquals(response.headers.get("content-type"), "application/json");
+  assert.deepStrictEqual(
+    response.headers.get("content-type"),
+    "application/json",
+  );
 });
 
 // Error Handling - Generic Errors.
 
-Deno.test("test kernel handles generic error with 500 status", async () => {
+test("test kernel handles generic error with 500 status", async () => {
   const app = new Kernel();
 
   app.add(() => {
@@ -107,10 +109,10 @@ Deno.test("test kernel handles generic error with 500 status", async () => {
 
   const response = await app.respond(new Request(APP_URL));
 
-  assertEquals(response.status, 500);
+  assert.deepStrictEqual(response.status, 500);
 });
 
-Deno.test("test kernel handles generic error status in JSON response", async () => {
+test("test kernel handles generic error status in JSON response", async () => {
   const app = new Kernel();
 
   app.add((context: Context) => {
@@ -123,12 +125,12 @@ Deno.test("test kernel handles generic error status in JSON response", async () 
 
   const data = await response.json();
 
-  assertEquals(data.status, 500);
+  assert.deepStrictEqual(data.status, 500);
 });
 
 // Error Handling - HTTP Errors (JSON).
 
-Deno.test("test kernel handles server error JSON response", async () => {
+test("test kernel handles server error JSON response", async () => {
   const app = new Kernel();
 
   app.add((context: Context) => {
@@ -141,15 +143,15 @@ Deno.test("test kernel handles server error JSON response", async () => {
 
   const data = await response.json();
 
-  assertEquals(
+  assert.deepStrictEqual(
     response.headers.get("content-type")?.includes("application/json"),
     true,
   );
-  assertEquals(data.name, "Server Error");
-  assertEquals(data.status, 500);
+  assert.deepStrictEqual(data.name, "Server Error");
+  assert.deepStrictEqual(data.status, 500);
 });
 
-Deno.test("test kernel handles not found JSON response", async () => {
+test("test kernel handles not found JSON response", async () => {
   const app = new Kernel();
 
   app.add((context: Context) => {
@@ -162,11 +164,11 @@ Deno.test("test kernel handles not found JSON response", async () => {
 
   const data = await response.json();
 
-  assertEquals(data.name, "Not Found");
-  assertEquals(data.status, 404);
+  assert.deepStrictEqual(data.name, "Not Found");
+  assert.deepStrictEqual(data.status, 404);
 });
 
-Deno.test("test kernel handles bad request with errors array JSON response", async () => {
+test("test kernel handles bad request with errors array JSON response", async () => {
   const app = new Kernel();
 
   app.add((context: Context) => {
@@ -182,13 +184,13 @@ Deno.test("test kernel handles bad request with errors array JSON response", asy
 
   const data = await response.json();
 
-  assertEquals(data.name, "Bad Request");
-  assertEquals(data.errors.length, 2);
+  assert.deepStrictEqual(data.name, "Bad Request");
+  assert.deepStrictEqual(data.errors.length, 2);
 });
 
 // Error Handling - HTTP Errors (Plain Text).
 
-Deno.test("test kernel handles error plain text HTTP response", async () => {
+test("test kernel handles error plain text HTTP response", async () => {
   const app = new Kernel();
 
   app.add((context: Context) => {
@@ -201,14 +203,14 @@ Deno.test("test kernel handles error plain text HTTP response", async () => {
 
   const data = await response.text();
 
-  assertEquals(
+  assert.deepStrictEqual(
     response.headers.get("content-type")?.includes("text/plain"),
     true,
   );
-  assertEquals(data, "Server Error - Test");
+  assert.deepStrictEqual(data, "Server Error - Test");
 });
 
-Deno.test("test kernel handles not found plain text response", async () => {
+test("test kernel handles not found plain text response", async () => {
   const app = new Kernel();
 
   app.add(() => {
@@ -217,13 +219,13 @@ Deno.test("test kernel handles not found plain text response", async () => {
 
   const response = await app.respond(new Request(APP_URL));
 
-  assertEquals(
+  assert.deepStrictEqual(
     await response.text(),
     "Not Found - The resource requested could not be found",
   );
 });
 
-Deno.test("test kernel handles server error plain text response", async () => {
+test("test kernel handles server error plain text response", async () => {
   const app = new Kernel();
 
   app.add(() => {
@@ -232,13 +234,13 @@ Deno.test("test kernel handles server error plain text response", async () => {
 
   const response = await app.respond(new Request(APP_URL));
 
-  assertEquals(
+  assert.deepStrictEqual(
     await response.text(),
     "Server Error - There was an unexpected error handling your request",
   );
 });
 
-Deno.test("test kernel handles bad request plain text response", async () => {
+test("test kernel handles bad request plain text response", async () => {
   const app = new Kernel();
 
   app.add(() => {
@@ -250,7 +252,7 @@ Deno.test("test kernel handles bad request plain text response", async () => {
 
   const response = await app.respond(new Request(APP_URL));
 
-  assertEquals(
+  assert.deepStrictEqual(
     await response.text(),
     "Bad Request - There was an issue handling your request",
   );
@@ -258,7 +260,7 @@ Deno.test("test kernel handles bad request plain text response", async () => {
 
 // Error Handling - HTTP Errors (HTML).
 
-Deno.test("test kernel handles error HTML HTTP response", async () => {
+test("test kernel handles error HTML HTTP response", async () => {
   const app = new Kernel();
 
   app.add((context: Context) => {
@@ -271,16 +273,16 @@ Deno.test("test kernel handles error HTML HTTP response", async () => {
 
   const data = await response.text();
 
-  assertEquals(
+  assert.deepStrictEqual(
     response.headers.get("content-type")?.includes("text/html"),
     true,
   );
-  assertEquals(data.includes("<h1>Server Error</h1>"), true);
+  assert.deepStrictEqual(data.includes("<h1>Server Error</h1>"), true);
 });
 
 // Custom Error Handling.
 
-Deno.test("test kernel uses custom error handler", async () => {
+test("test kernel uses custom error handler", async () => {
   const app = new Kernel();
 
   app.add(() => {
@@ -302,28 +304,28 @@ Deno.test("test kernel uses custom error handler", async () => {
 
   const response = await app.respond(new Request(APP_URL));
 
-  const data = await response.json() as { message: string };
+  const data = (await response.json()) as { message: string };
 
-  assertEquals(data.message, "Nothing was found");
+  assert.deepStrictEqual(data.message, "Nothing was found");
 });
 
 // Kernel Response Manager.
 
-Deno.test("test kernel uses default response manager", async () => {
+test("test kernel uses default response manager", async () => {
   const app = new Kernel();
 
   app.add(() => "Test");
 
   const response = await app.respond(new Request(APP_URL));
 
-  assertEquals(await response.text(), "Test");
-  assertEquals(
+  assert.deepStrictEqual(await response.text(), "Test");
+  assert.deepStrictEqual(
     app.getResponseManager() instanceof DefaultResponseManager,
     true,
   );
 });
 
-Deno.test("test kernel uses custom response manager via config", async () => {
+test("test kernel uses custom response manager via config", async () => {
   class CustomResponseManager extends DefaultResponseManager {}
 
   const app = new Kernel({
@@ -336,11 +338,14 @@ Deno.test("test kernel uses custom response manager via config", async () => {
 
   const response = await app.respond(new Request(APP_URL));
 
-  assertEquals(await response.text(), "Test");
-  assertEquals(app.getResponseManager() instanceof CustomResponseManager, true);
+  assert.deepStrictEqual(await response.text(), "Test");
+  assert.deepStrictEqual(
+    app.getResponseManager() instanceof CustomResponseManager,
+    true,
+  );
 });
 
-Deno.test("test kernel uses custom response manager", async () => {
+test("test kernel uses custom response manager", async () => {
   const app = new Kernel();
 
   class CustomResponseManager extends DefaultResponseManager {}
@@ -351,6 +356,9 @@ Deno.test("test kernel uses custom response manager", async () => {
 
   const response = await app.respond(new Request(APP_URL));
 
-  assertEquals(await response.text(), "Test");
-  assertEquals(app.getResponseManager() instanceof CustomResponseManager, true);
+  assert.deepStrictEqual(await response.text(), "Test");
+  assert.deepStrictEqual(
+    app.getResponseManager() instanceof CustomResponseManager,
+    true,
+  );
 });

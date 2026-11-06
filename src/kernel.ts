@@ -3,7 +3,7 @@ import type {
   ErrorHandler,
   HttpError,
   Middleware,
-} from "@raptor/types";
+} from "@raptor-js/types";
 
 import Context from "./context.ts";
 import DefaultServerManager from "./server/manager.ts";
@@ -113,9 +113,7 @@ export default class Kernel {
         manager: new DefaultServerManager(),
       },
       response: {
-        manager: new DefaultResponseManager(
-          false,
-        ),
+        manager: new DefaultResponseManager(false),
       },
     };
   }
@@ -138,9 +136,7 @@ export default class Kernel {
 
     this.serverManager.serve(handler, { port, hostname });
 
-    console.log(
-      `🦕 Raptor started on port ${port}...`,
-    );
+    console.log(`🦕 Raptor started on port ${port}...`);
   }
 
   /**
@@ -349,9 +345,7 @@ export default class Kernel {
    *
    * @returns Promise<void>
    */
-  private async processUncaughtError(
-    context: Context,
-  ): Promise<void> {
+  private async processUncaughtError(context: Context): Promise<void> {
     if (!this.errorHandler) {
       return this.internalErrorHandler(context);
     }

@@ -270,9 +270,9 @@ const formatIpv6 = (bytes: Uint8Array): string => {
   }
 
   const head = groups.slice(0, bestStart).map((group) => group.toString(16));
-  const tail = groups.slice(bestStart + bestLength).map((group) =>
-    group.toString(16)
-  );
+  const tail = groups
+    .slice(bestStart + bestLength)
+    .map((group) => group.toString(16));
 
   return `${head.join(":")}::${tail.join(":")}`;
 };

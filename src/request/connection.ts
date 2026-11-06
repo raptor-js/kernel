@@ -1,4 +1,4 @@
-import type { ConnInfo } from "@raptor/types";
+import type { ConnInfo } from "@raptor-js/types";
 
 import { formatAddress, parseAddress } from "./ip.ts";
 

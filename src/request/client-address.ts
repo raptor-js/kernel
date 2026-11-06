@@ -1,4 +1,4 @@
-import type { Context } from "@raptor/types";
+import type { Context } from "@raptor-js/types";
 
 import {
   canonicaliseAddress,
@@ -90,7 +90,8 @@ const forwardedHops = (header: string | null): string[] => {
 
   for (
     let index = parts.length - 1;
-    index >= 0 && hops.length < MAX_FORWARDED_ENTRIES &&
+    index >= 0 &&
+    hops.length < MAX_FORWARDED_ENTRIES &&
     scanned < MAX_FORWARDED_SCAN;
     index--
   ) {
@@ -193,7 +194,8 @@ export const clientAddress = (
 
   // Trusting nothing is the default, so the header is not read at all.
   if (
-    trust === false || trust === 0 ||
+    trust === false ||
+    trust === 0 ||
     (Array.isArray(trust) && trust.length === 0)
   ) {
     return canonicaliseAddress(socket);

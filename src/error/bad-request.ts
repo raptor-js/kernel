@@ -1,4 +1,4 @@
-import type { HttpError } from "@raptor/types";
+import type { HttpError } from "@raptor-js/types";
 
 /**
  * An error used primarily in 400 bad request errors.

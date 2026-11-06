@@ -9,4 +9,4 @@ export const ResponseBodyType = {
 } as const;
 
 export type ResponseBodyType =
-  typeof ResponseBodyType[keyof typeof ResponseBodyType];
+  (typeof ResponseBodyType)[keyof typeof ResponseBodyType];

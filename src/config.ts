@@ -1,4 +1,4 @@
-import type { ErrorHandler, Middleware } from "@raptor/types";
+import type { ErrorHandler, Middleware } from "@raptor-js/types";
 
 import type { ServerManager } from "./interfaces/server-manager.ts";
 import type { ResponseManager } from "./interfaces/response-manager.ts";

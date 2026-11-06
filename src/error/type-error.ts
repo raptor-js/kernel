@@ -1,4 +1,4 @@
-import type { HttpError } from "@raptor/types";
+import type { HttpError } from "@raptor-js/types";
 
 /**
  * An error used primarily for application code errors.
@@ -13,7 +13,7 @@ export default class TypeError extends Error implements HttpError {
     super();
 
     this.name = "Type Error";
-    this.message = message ??
-      "There was a problem running the application code";
+    this.message =
+      message ?? "There was a problem running the application code";
   }
 }

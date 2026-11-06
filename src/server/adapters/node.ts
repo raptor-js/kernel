@@ -1,4 +1,4 @@
-import type { ConnInfo } from "@raptor/types";
+import type { ConnInfo } from "@raptor-js/types";
 
 import { connInfoFor } from "../../request/connection.ts";
 
@@ -62,9 +62,7 @@ export default class NodeServer implements ServerAdapter {
           authority,
         );
 
-        const connection = this.toConnInfo(
-          nodeRequest as NodeIncomingMessage,
-        );
+        const connection = this.toConnInfo(nodeRequest as NodeIncomingMessage);
 
         const response = await handler(request, connection);
         await this.fromWebResponse(
@@ -81,10 +79,7 @@ export default class NodeServer implements ServerAdapter {
       }
     });
 
-    server.listen(
-      options?.port,
-      options?.hostname ?? "localhost",
-    );
+    server.listen(options?.port, options?.hostname ?? "localhost");
   }
 
   /**
@@ -95,15 +90,14 @@ export default class NodeServer implements ServerAdapter {
    *
    * @returns The configured authority.
    */
-  private authorityFor(
-    options?: { port?: number; hostname?: string },
-  ): string {
+  private authorityFor(options?: { port?: number; hostname?: string }): string {
     const hostname = options?.hostname ?? "localhost";
 
     // An IPv6 literal has to be bracketed to sit in a URL.
-    const host = hostname.includes(":") && !hostname.startsWith("[")
-      ? `[${hostname}]`
-      : hostname;
+    const host =
+      hostname.includes(":") && !hostname.startsWith("[")
+        ? `[${hostname}]`
+        : hostname;
 
     return options?.port ? `${host}:${options.port}` : host;
   }
@@ -118,9 +112,7 @@ export default class NodeServer implements ServerAdapter {
    *
    * @returns The connection, or undefined if the socket reports no peer.
    */
-  private toConnInfo(
-    nodeRequest: NodeIncomingMessage,
-  ): ConnInfo | undefined {
+  private toConnInfo(nodeRequest: NodeIncomingMessage): ConnInfo | undefined {
     const { remoteAddress, remotePort } = nodeRequest.socket;
 
     return connInfoFor(remoteAddress, remotePort);
@@ -140,10 +132,7 @@ export default class NodeServer implements ServerAdapter {
    *
    * @returns The authority to build the request URL with.
    */
-  private hostFor(
-    nodeRequest: NodeIncomingMessage,
-    authority: string,
-  ): string {
+  private hostFor(nodeRequest: NodeIncomingMessage, authority: string): string {
     const host = nodeRequest.headers.host;
 
     if (typeof host !== "string" || host.length > MAX_HOST_LENGTH) {
@@ -176,9 +165,10 @@ export default class NodeServer implements ServerAdapter {
     return new Request(url, {
       method: nodeRequest.method,
       headers: nodeRequest.headers as HeadersInit,
-      body: nodeRequest.method !== "GET" && nodeRequest.method !== "HEAD"
-        ? (nodeRequest as unknown as ReadableStream<Uint8Array>)
-        : undefined,
+      body:
+        nodeRequest.method !== "GET" && nodeRequest.method !== "HEAD"
+          ? (nodeRequest as unknown as ReadableStream<Uint8Array>)
+          : undefined,
       duplex: "half",
     } as RequestInit);
   }

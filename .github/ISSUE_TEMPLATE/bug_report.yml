@@ -54,7 +54,7 @@ body:
       label: Minimal Reproduction
       description: Provide the smallest amount of code that reproduces the issue
       placeholder: |
-        import { Kernel } from "@raptor/kernel";
+        import { Kernel } from "@raptor-js/kernel";
 
         const app = new Kernel();
 

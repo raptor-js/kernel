@@ -1,4 +1,4 @@
-import type { ConnInfo } from "@raptor/types";
+import type { ConnInfo } from "@raptor-js/types";
 
 /**
  * The request handler a server adapter drives. `connection` is optional, as not

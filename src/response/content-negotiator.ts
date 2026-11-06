@@ -75,9 +75,9 @@ export default class ContentNegotiator {
 
     const [type] = baseType.split("/");
 
-    const acceptedTypes = acceptHeader.split(",").map((t) =>
-      t.split(";")[0]?.trim().toLowerCase()
-    );
+    const acceptedTypes = acceptHeader
+      .split(",")
+      .map((t) => t.split(";")[0]?.trim().toLowerCase());
 
     for (const accepted of acceptedTypes) {
       if (accepted === baseType) {
