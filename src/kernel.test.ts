@@ -362,3 +362,57 @@ test("test kernel uses custom response manager", async () => {
     true,
   );
 });
+
+test("test kernel runs a chain of synchronous middleware", async () => {
+  const app = new Kernel();
+
+  const order: string[] = [];
+
+  app.add((_context, next) => {
+    order.push("first");
+
+    return next();
+  });
+
+  app.add(() => {
+    order.push("second");
+
+    return "Test Successful";
+  });
+
+  const response = await app.respond(new Request(APP_URL));
+
+  assert.deepStrictEqual(await response.text(), "Test Successful");
+  assert.deepStrictEqual(order, ["first", "second"]);
+});
+
+test("test kernel next returns a promise for synchronous middleware", async () => {
+  const app = new Kernel();
+
+  let after = false;
+
+  app.add((context, next) =>
+    (next() as Promise<void>).then(() => {
+      after = context.response.headers.get("content-type") === "text/plain";
+    }),
+  );
+
+  app.add(() => "Test Successful");
+
+  const response = await app.respond(new Request(APP_URL));
+
+  assert.deepStrictEqual(await response.text(), "Test Successful");
+  assert.deepStrictEqual(after, true);
+});
+
+test("test kernel handles an error thrown by synchronous middleware", async () => {
+  const app = new Kernel();
+
+  app.add(() => {
+    throw new BadRequest(["Invalid input"]);
+  });
+
+  const response = await app.respond(new Request(APP_URL));
+
+  assert.deepStrictEqual(response.status, 400);
+});

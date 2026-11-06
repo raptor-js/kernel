@@ -14,6 +14,16 @@ import type { ServerManager } from "./interfaces/server-manager.ts";
 import type { ResponseManager } from "./interfaces/response-manager.ts";
 
 /**
+ * Check whether a middleware handed back something to wait on.
+ *
+ * @param value What the middleware returned.
+ *
+ * @returns Whether the value is a promise or promise-like.
+ */
+const isThenable = (value: unknown): value is PromiseLike<unknown> =>
+  typeof (value as PromiseLike<unknown> | null)?.then === "function";
+
+/**
  * The root initialiser for the framework.
  */
 export default class Kernel {
@@ -160,7 +170,7 @@ export default class Kernel {
   ): Promise<Response> {
     const context = new Context(request, new Response(), connection);
 
-    await this.next(context);
+    await this.executeMiddleware(context, 0);
 
     return context.response;
   }
@@ -253,32 +263,20 @@ export default class Kernel {
   }
 
   /**
-   * Handle the processing of middleware.
-   *
-   * @param context The current HTTP context.
-   *
-   * @returns void
-   */
-  private async next(context: Context): Promise<void> {
-    await this.executeMiddleware(context, 0);
-  }
-
-  /**
    * Execute a chosen middleware by index.
+   *
+   * Stays synchronous until a middleware hands back a promise, so a chain only
+   * waits on the steps that are asynchronous.
    *
    * @param context The current HTTP context.
    * @param index The current middleware index.
    *
-   * @returns Promise<void>
+   * @returns A promise when a step is asynchronous, otherwise nothing.
    */
-  private async executeMiddleware(
+  private executeMiddleware(
     context: Context,
     index: number,
-  ): Promise<Response | void> {
-    if (index >= this.middleware.length) {
-      return;
-    }
-
+  ): Promise<void> | void {
     const middleware = this.middleware[index];
 
     if (!middleware) {
@@ -287,36 +285,77 @@ export default class Kernel {
 
     let called = false;
 
-    // Hands back the next step's promise as it is, so a chain adds no async frame of its own per step.
-    const next = (): Promise<Response | void> => {
+    // Always a promise, so middleware that chains .then() on next() keeps working.
+    const next = (): Promise<void> => {
       if (called) {
         return Promise.resolve();
       }
 
       called = true;
 
-      return this.executeMiddleware(context, index + 1);
+      return Promise.resolve(this.executeMiddleware(context, index + 1));
     };
 
+    let body: unknown;
+
     try {
-      const body = await middleware(context, next);
-
-      if (called || !body) {
-        return;
-      }
-
-      if (body instanceof Response) {
-        context.response = body;
-
-        return;
-      }
-
-      await this.processMiddlewareResponse(body, context);
+      body = middleware(context, next);
     } catch (error) {
-      context.error = error as Error | HttpError;
-
-      await this.processUncaughtError(context);
+      return this.processError(error, context);
     }
+
+    if (isThenable(body)) {
+      return Promise.resolve(body).then(
+        (resolved) => this.settleMiddleware(resolved, called, context),
+        (error) => this.processError(error, context),
+      );
+    }
+
+    return this.settleMiddleware(body, called, context);
+  }
+
+  /**
+   * Turn what a middleware returned into the response, unless it passed the
+   * request on.
+   *
+   * @param body What the middleware returned.
+   * @param called Whether the middleware called next.
+   * @param context The current HTTP context.
+   *
+   * @returns A promise when the body needs processing, otherwise nothing.
+   */
+  private settleMiddleware(
+    body: unknown,
+    called: boolean,
+    context: Context,
+  ): Promise<void> | void {
+    if (called || !body) {
+      return;
+    }
+
+    if (body instanceof Response) {
+      context.response = body;
+
+      return;
+    }
+
+    return this.processMiddlewareResponse(body, context).catch((error) =>
+      this.processError(error, context),
+    );
+  }
+
+  /**
+   * Record an error a middleware raised and hand it to the error handler.
+   *
+   * @param error The error that was raised.
+   * @param context The current HTTP context.
+   *
+   * @returns Promise<void>
+   */
+  private processError(error: unknown, context: Context): Promise<void> {
+    context.error = error as Error | HttpError;
+
+    return this.processUncaughtError(context);
   }
 
   /**
