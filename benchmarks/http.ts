@@ -7,7 +7,22 @@ import autocannon from "autocannon";
 
 import { scenarios } from "./scenarios.ts";
 
-const frameworks = ["raptor", "hono", "h3", "express", "koa", "fastify"];
+// Usage: node benchmarks/http.ts [node|deno]
+const runtime = process.argv[2] ?? "node";
+
+// On Deno only the frameworks built on web standards run natively; the rest would go through Node compatibility.
+const runtimes: Record<string, { frameworks: string[]; command: string[] }> = {
+  node: {
+    frameworks: ["raptor", "hono", "h3", "express", "koa", "fastify"],
+    command: [process.execPath],
+  },
+  deno: {
+    frameworks: ["raptor", "hono", "h3", "elysia"],
+    command: ["deno", "run", "--allow-all", "--quiet"],
+  },
+};
+
+const { frameworks, command } = runtimes[runtime];
 
 const PORT = 3100;
 const APP_URL = `http://127.0.0.1:${PORT}/`;
@@ -30,14 +45,16 @@ const waitUntilReady = async (): Promise<void> => {
   throw new Error(`No server answered on ${APP_URL}`);
 };
 
+console.log(`Servers running on ${runtime}`);
+
 for (const [index, scenario] of scenarios.entries()) {
   console.log(`\n${scenario.name}`);
 
   for (const name of frameworks) {
     // Each server runs in its own process, so no framework shares a heap or event loop with the load.
     const server = spawn(
-      process.execPath,
-      [SERVER, name, String(index), String(PORT)],
+      command[0],
+      [...command.slice(1), SERVER, name, String(index), String(PORT)],
       {
         stdio: "ignore",
       },

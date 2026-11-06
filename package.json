@@ -30,7 +30,8 @@
     "test:coverage": "node --test --experimental-test-coverage 'src/**/*.test.ts'",
     "bench": "node benchmarks/in-process.ts",
     "bench:http": "node benchmarks/http.ts",
-    "prepack": "npm run build"
+    "prepack": "npm run build",
+    "bench:http:deno": "node benchmarks/http.ts deno"
   },
   "dependencies": {
     "@raptor-js/types": "^0.4.0"

@@ -1,8 +1,9 @@
-// Starts one framework's server: node benchmarks/http-server.ts <framework> <scenario index> <port>
+// Starts one framework's server: <node|deno> benchmarks/http-server.ts <framework> <scenario index> <port>
 import Koa from "koa";
 import express from "express";
 import Fastify from "fastify";
 import { Hono } from "hono";
+import { Elysia } from "elysia";
 import { H3, serve as serveH3 } from "h3";
 import { serve as serveHono } from "@hono/node-server";
 
@@ -16,7 +17,10 @@ const scenario = scenarios[Number(index)];
 const port = Number(portArgument);
 const hostname = "127.0.0.1";
 
-// Each framework serves the scenario with its own idiomatic Node server.
+// biome-ignore lint/suspicious/noExplicitAny: the runtime global has no types here
+const Deno = (globalThis as any).Deno;
+
+// Each framework serves the scenario with its own idiomatic server for the runtime.
 const servers: Record<string, () => unknown> = {
   raptor: () => {
     const app = new Kernel({ port, hostname });
@@ -43,7 +47,26 @@ const servers: Record<string, () => unknown> = {
 
     app.use(async (c) => (scenario.json ? c.json(data) : c.text("OK")));
 
+    if (Deno) {
+      Deno.serve({ port, hostname }, app.fetch);
+
+      return;
+    }
+
     serveHono({ fetch: app.fetch, port, hostname });
+  },
+
+  // Elysia has no next(), so each step is an onRequest hook, its own way of running code on every request.
+  elysia: () => {
+    const app = new Elysia();
+
+    for (let i = 0; i < scenario.chain; i++) {
+      app.onRequest(() => {});
+    }
+
+    app.get("/", () => (scenario.json ? data : "OK"));
+
+    Deno.serve({ port, hostname }, app.fetch);
   },
 
   h3: () => {
