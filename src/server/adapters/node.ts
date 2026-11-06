@@ -203,8 +203,19 @@ export default class NodeServer implements ServerAdapter {
     nodeResponse.statusCode = response.status;
 
     response.headers.forEach((value, key) => {
+      if (key === "set-cookie") {
+        return;
+      }
+
       nodeResponse.setHeader(key, value);
     });
+
+    // Each cookie is its own header, so they go to Node as a list rather than one overwriting the next.
+    const cookies = response.headers.getSetCookie();
+
+    if (cookies.length > 0) {
+      nodeResponse.setHeader("set-cookie", cookies);
+    }
 
     const rawBody = getRawBody(response);
 

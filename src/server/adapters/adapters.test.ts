@@ -248,10 +248,13 @@ test("node adapter builds the fallback authority from server options", () => {
  */
 const writeThroughNode = async (response: Response) => {
   const calls: string[] = [];
+  const headers: Record<string, string | string[]> = {};
 
   const nodeResponse = {
     statusCode: 0,
-    setHeader: () => {},
+    setHeader: (key: string, value: string | string[]) => {
+      headers[key] = value;
+    },
     write: (chunk: Uint8Array) =>
       calls.push(`write ${new TextDecoder().decode(chunk)}`),
     end: (chunk?: Uint8Array | string) => {
@@ -266,7 +269,7 @@ const writeThroughNode = async (response: Response) => {
 
   await (new NodeServer() as any).fromWebResponse(response, nodeResponse);
 
-  return { calls, status: nodeResponse.statusCode };
+  return { calls, headers, status: nodeResponse.statusCode };
 };
 
 test("node adapter sends a whole body in a single end call", async () => {
@@ -342,4 +345,17 @@ test("node adapter checks each host header on its own", () => {
   );
   assert.deepStrictEqual(hostFor(" example.com "), "example.com");
   assert.deepStrictEqual(hostFor(undefined), "configured.example:8080");
+});
+
+test("node adapter sends every cookie, not just the last", async () => {
+  const response = new Response("OK");
+
+  response.headers.append("set-cookie", "a=1");
+  response.headers.append("set-cookie", "b=2");
+  response.headers.set("x-other", "kept");
+
+  const { headers } = await writeThroughNode(response);
+
+  assert.deepStrictEqual(headers["set-cookie"], ["a=1", "b=2"]);
+  assert.deepStrictEqual(headers["x-other"], "kept");
 });
