@@ -416,3 +416,19 @@ test("test kernel handles an error thrown by synchronous middleware", async () =
 
   assert.deepStrictEqual(response.status, 400);
 });
+
+test("test kernel runs middleware added after the first request", async () => {
+  const app = new Kernel();
+
+  app.add(async (_context, next) => {
+    await next();
+  });
+
+  await app.respond(new Request(APP_URL));
+
+  app.add(() => "Added Later");
+
+  const response = await app.respond(new Request(APP_URL));
+
+  assert.deepStrictEqual(await response.text(), "Added Later");
+});
