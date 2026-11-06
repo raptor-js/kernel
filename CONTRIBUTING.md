@@ -34,9 +34,9 @@ We love pull requests! Here's how to contribute code:
 
 ```sh
 # Fork and clone the repository.
-git clone https://github.com/YOUR_USERNAME/raptor-kernel.git
+git clone https://github.com/YOUR_USERNAME/kernel.git
 
-cd raptor-kernel
+cd kernel
 
 # Run tests.
 npm test
@@ -126,17 +126,18 @@ with Node, so you need Node to contribute.
 ### Project Structure
 
 ```txt
-raptor-framework/
+kernel/
 ├── src/
-│   ├── response/          # HTTP handling (Context, Response Management)
-│   ├── interfaces/        # TypeScript interfaces
-│   ├── types/             # TypeScript types
 │   ├── error/             # Built-in HTTP error classes
-|   └── server/            # Server implementations for runtimes
-├── examples/              # Example applications
-├── tests/                 # Tests
+│   ├── interfaces/        # TypeScript interfaces
+│   ├── request/           # Connection info and client addresses
+│   ├── response/          # Response management and processors
+│   └── server/            # Server adapters for each runtime
+├── benchmark.ts           # Benchmarks against Hono
 └── mod.ts                 # Entry point
 ```
+
+Tests sit next to the code they cover, as `*.test.ts` files.
 
 ### Running Tests
 
