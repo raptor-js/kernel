@@ -133,7 +133,7 @@ kernel/
 │   ├── request/           # Connection info and client addresses
 │   ├── response/          # Response management and processors
 │   └── server/            # Server adapters for each runtime
-├── benchmark.ts           # Benchmarks against Hono
+├── benchmarks/            # Benchmarks against other frameworks
 └── mod.ts                 # Entry point
 ```
 

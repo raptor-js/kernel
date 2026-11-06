@@ -17,7 +17,8 @@
   },
   "files": [
     "dist",
-    "!dist/**/*.test.*"
+    "!dist/**/*.test.*",
+    "!dist/benchmarks"
   ],
   "scripts": {
     "build": "tsc",
@@ -27,7 +28,8 @@
     "test": "node --test 'src/**/*.test.ts'",
     "test:watch": "node --test --watch 'src/**/*.test.ts'",
     "test:coverage": "node --test --experimental-test-coverage 'src/**/*.test.ts'",
-    "bench": "node benchmark.ts",
+    "bench": "node benchmarks/in-process.ts",
+    "bench:http": "node benchmarks/http.ts",
     "prepack": "npm run build"
   },
   "dependencies": {
@@ -35,8 +37,18 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^2.6.6",
+    "@hono/node-server": "^2.1.6",
+    "@types/autocannon": "^7.12.7",
+    "@types/express": "^5.0.6",
+    "@types/koa": "^3.0.3",
     "@types/node": "^26.6.6",
+    "autocannon": "^8.0.0",
+    "elysia": "^1.4.31",
+    "express": "^5.3.0",
+    "fastify": "^5.12.8",
+    "h3": "^2.0.8",
     "hono": "^4.13.16",
+    "koa": "^3.3.0",
     "mitata": "^1.0.34",
     "typescript": "^7.0.2"
   }

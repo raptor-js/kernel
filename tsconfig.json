@@ -14,5 +14,5 @@
     "verbatimModuleSyntax": true,
     "skipLibCheck": true
   },
-  "include": ["mod.ts", "src"]
+  "include": ["mod.ts", "src", "benchmarks"]
 }
