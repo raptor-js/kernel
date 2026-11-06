@@ -62,6 +62,19 @@ export default class DefaultResponseManager implements ResponseManager {
    * @returns A valid HTTP response object.
    */
   public async process(body: any, context: Context): Promise<Response> {
+    return await this.processNow(body, context);
+  }
+
+  /**
+   * Process a body into a valid Response object, staying synchronous when its
+   * processor is. The kernel calls this when process() has not been replaced.
+   *
+   * @param body A body value to process.
+   * @param context The current HTTP context.
+   *
+   * @returns A valid HTTP response object, or a promise of one.
+   */
+  public processNow(body: any, context: Context): Response | Promise<Response> {
     const typeKey = this.getTypeKey(body);
 
     const processor = this.processors.get(typeKey);
@@ -72,19 +85,39 @@ export default class DefaultResponseManager implements ResponseManager {
       );
     }
 
-    const response = await processor.process(body, context);
+    const response = processor.process(body, context);
 
-    if (this.strictContentNegotiation) {
-      const contentType = response.headers.get("content-type");
+    if (response instanceof Promise) {
+      return response.then((resolved) =>
+        this.checkAcceptable(resolved, context),
+      );
+    }
 
-      if (
-        contentType !== null &&
-        !ContentNegotiator.isAcceptable(context.request, contentType)
-      ) {
-        throw new NotAcceptable(
-          `Cannot produce ${contentType} as requested in Accept header`,
-        );
-      }
+    return this.checkAcceptable(response, context);
+  }
+
+  /**
+   * Refuse a response the request does not accept, when negotiation is strict.
+   *
+   * @param response The processed response.
+   * @param context The current HTTP context.
+   *
+   * @returns The response, when it is acceptable.
+   */
+  private checkAcceptable(response: Response, context: Context): Response {
+    if (!this.strictContentNegotiation) {
+      return response;
+    }
+
+    const contentType = response.headers.get("content-type");
+
+    if (
+      contentType !== null &&
+      !ContentNegotiator.isAcceptable(context.request, contentType)
+    ) {
+      throw new NotAcceptable(
+        `Cannot produce ${contentType} as requested in Accept header`,
+      );
     }
 
     return response;

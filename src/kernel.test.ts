@@ -439,3 +439,40 @@ test("test kernel keeps the default server manager when only node options are gi
 
   assert.ok(app.getServerManager() instanceof DefaultServerManager);
 });
+
+test("test kernel calls a response manager subclass through its own process", async () => {
+  let called = false;
+
+  class CountingResponseManager extends DefaultResponseManager {
+    public override async process(body: unknown, context: Context) {
+      called = true;
+
+      return await super.process(body, context as never);
+    }
+  }
+
+  const app = new Kernel();
+
+  app.setResponseManager(new CountingResponseManager());
+
+  app.add(() => "Test Successful");
+
+  const response = await app.respond(new Request(APP_URL));
+
+  assert.deepStrictEqual(await response.text(), "Test Successful");
+  assert.deepStrictEqual(called, true);
+});
+
+test("test kernel waits for a response processor that returns a promise", async () => {
+  const app = new Kernel();
+
+  app.getResponseManager().register("string", {
+    process: async (body: string) => new Response(`async ${body}`),
+  });
+
+  app.add(() => "Test");
+
+  const response = await app.respond(new Request(APP_URL));
+
+  assert.deepStrictEqual(await response.text(), "async Test");
+});

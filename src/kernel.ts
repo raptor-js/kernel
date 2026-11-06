@@ -350,9 +350,50 @@ export default class Kernel {
       return;
     }
 
-    return this.processMiddlewareResponse(body, context).catch((error) =>
-      this.processError(error, context),
-    );
+    let processed: Response | Promise<Response>;
+
+    try {
+      processed = this.processBody(body, context);
+    } catch (error) {
+      return this.processError(error, context);
+    }
+
+    if (isThenable(processed)) {
+      return Promise.resolve(processed).then(
+        (response) => {
+          context.response = response;
+        },
+        (error) => this.processError(error, context),
+      );
+    }
+
+    context.response = processed;
+  }
+
+  /**
+   * Turn a body into a response, staying synchronous wherever the response
+   * manager can.
+   *
+   * @param body What the middleware returned.
+   * @param context The current HTTP context.
+   *
+   * @returns The response, or a promise of one.
+   */
+  private processBody(
+    body: unknown,
+    context: Context,
+  ): Response | Promise<Response> {
+    const manager = this.responseManager;
+
+    // A subclass that replaces process() is always called through it.
+    if (
+      manager instanceof DefaultResponseManager &&
+      manager.process === DefaultResponseManager.prototype.process
+    ) {
+      return manager.processNow(body, context);
+    }
+
+    return manager.process(body, context);
   }
 
   /**
