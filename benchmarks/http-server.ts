@@ -50,7 +50,9 @@ const servers: Record<string, () => unknown> = {
     const app = new H3();
 
     for (let i = 0; i < scenario.chain; i++) {
-      app.use((_event, next) => next());
+      app.use(async (_event, next) => {
+        await next();
+      });
     }
 
     app.all("/**", () => (scenario.json ? data : "OK"));
