@@ -70,7 +70,16 @@ export default class Kernel {
     // A server option given without a manager still gets the default one.
     this.serverManager =
       this.config.server?.manager ?? new DefaultServerManager();
-    this.responseManager = this.config.response?.manager!;
+
+    // Likewise for responses, where the default manager follows strict negotiation.
+    this.responseManager =
+      config?.response?.manager ??
+      new DefaultResponseManager(this.config.strictContentNegotiation ?? false);
+
+    this.config.response = {
+      ...this.config.response,
+      manager: this.responseManager,
+    };
 
     if (this.config.server?.node) {
       this.serverManager.register(

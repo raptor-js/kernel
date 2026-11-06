@@ -476,3 +476,32 @@ test("test kernel waits for a response processor that returns a promise", async 
 
   assert.deepStrictEqual(await response.text(), "async Test");
 });
+
+test("test kernel still refuses an unacceptable response with strict negotiation", async () => {
+  const app = new Kernel({ strictContentNegotiation: true });
+
+  app.add(() => "Plain text");
+
+  const response = await app.respond(
+    new Request(APP_URL, { headers: { accept: "application/json" } }),
+  );
+
+  assert.deepStrictEqual(response.status, 406);
+});
+
+test("test kernel keeps the default response manager when only processors are given", async () => {
+  const app = new Kernel({
+    response: {
+      processors: {
+        string: { process: (body: string) => new Response(`custom ${body}`) },
+      },
+    },
+  });
+
+  app.add(() => "Test");
+
+  const response = await app.respond(new Request(APP_URL));
+
+  assert.ok(app.getResponseManager() instanceof DefaultResponseManager);
+  assert.deepStrictEqual(await response.text(), "custom Test");
+});
